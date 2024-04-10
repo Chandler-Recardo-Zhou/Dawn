@@ -124,8 +124,10 @@ void CalWidget::on_btndiv_clicked()
 
 void CalWidget::on_btnback_clicked()
 {
-    str=str.left(str.length()-1);
-    ui->leditexpr->setText(str);
+    if (!str.isEmpty()) {
+        str.chop(1);
+        ui->leditexpr->setText(str);
+    }
 }
 
 void CalWidget::on_btnclear_clicked()
@@ -137,32 +139,34 @@ void CalWidget::on_btnclear_clicked()
 
 void CalWidget::on_btnequal_clicked()
 {
-    ui->leditresult->clear();               //清空结果编辑框
-    QStringList Str_List = str.split(" ");  //将表达式字符串以空格分片，如:3+4分为3部分
-    Str_List[0] = Str_List[0].simplified(); //第1部分(左操作数)去掉首尾空格
-    num1 = Str_List[0].toDouble();          //将左操作数字符串转化为数值斌值给num1
-    Str_List[2] = Str_List[2].simplified(); //分片的第3部分(右操作数)去掉首尾空格
-    num2 = Str_List[2].toDouble();          //将右操作数字符串转化为数值赋值给num2
-    switch(mark)
-    {
-    case '+':                               //如果运算符字符为+
-        result = num1 + num2;               //计算
-        ui->leditresult->setText(QString::number(result));  //结果转换为字符串显示在结果编辑框
-        break;
-    case '-':
-        result = num1 - num2;
+    ui->leditresult->clear();
+    QStringList Str_List = str.split(" ", Qt::SkipEmptyParts);  // 确保使用Qt::SkipEmptyParts去除多余的空白
+    if (Str_List.size() == 3) {
+        double num1 = Str_List[0].toDouble();  // 将左操作数字符串转化为数值
+        double num2 = Str_List[2].toDouble();  // 将右操作数字符串转化为数值
+        QString operatorStr = Str_List[1].trimmed();  // 获取并清理操作符字符串
+
+        // 根据操作符执行相应的运算
+        if (operatorStr == "+") {
+            result = num1 + num2;
+        } else if (operatorStr == "-") {
+            result = num1 - num2;
+        } else if (operatorStr == "*") {
+            result = num1 * num2;
+        } else if (operatorStr == "/") {
+            if (num2 != 0) {
+                result = num1 / num2;
+            } else {
+                ui->leditresult->setText("除数不能为0!");
+                return;
+            }
+        } else {
+            ui->leditresult->setText("未知的操作符!");
+            return;
+        }
         ui->leditresult->setText(QString::number(result));
-        break;
-    case '*':
-        result = num1 * num2;
-        ui->leditresult->setText(QString::number(result));
-        break;
-    case '/':
-        if(0!= num2)                         //如果除数不为0，则计算
-            result = num1/ num2;
-        else
-            ui->leditresult->setText("除数不能为0!");  //如果除数为0，报错
-        break;
+    } else {
+        ui->leditresult->setText("表达式错误!");
     }
-    str.clear();//完成一次运算，表达式宇符串清空
+    str.clear(); // 完成一次运算，清空表达式字符串
 }
