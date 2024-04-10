@@ -1,11 +1,11 @@
 #include "calwidget.h"
 #include "ui_calwidget.h"
+#include <QtMath> // 引入数学库用于扩展计算功能
 
-CalWidget::CalWidget(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::CalWidget)
+CalWidget::CalWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CalWidget)
 {
     ui->setupUi(this);
+    openParensCount = 0; // 初始化开括号计数器
 }
 
 CalWidget::~CalWidget()
@@ -15,119 +15,145 @@ CalWidget::~CalWidget()
 
 void CalWidget::on_btn0_clicked()
 {
-    QString tmp = "0";
-    str.append(tmp);
+    str.append("0");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn1_clicked()
 {
-    QString tmp = "1";
-    str.append(tmp);
+    str.append("1");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn2_clicked()
 {
-    QString tmp = "2";
-    str.append(tmp);
+    str.append("2");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn3_clicked()
 {
-    QString tmp = "3";
-    str.append(tmp);
+    str.append("3");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn4_clicked()
 {
-    QString tmp = "4";
-    str.append(tmp);
+    str.append("4");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn5_clicked()
 {
-    QString tmp = "5";
-    str.append(tmp);
+    str.append("5");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn6_clicked()
 {
-    QString tmp = "6";
-    str.append(tmp);
+    str.append("6");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn7_clicked()
 {
-    QString tmp = "7";
-    str.append(tmp);
+    str.append("7");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn8_clicked()
 {
-    QString tmp = "8";
-    str.append(tmp);
+    str.append("8");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btn9_clicked()
 {
-    QString tmp = "9";
-    str.append(tmp);
+    str.append("9");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btnpoint_clicked()
 {
-    QString tmp = ".";
-    str.append(tmp);
-    ui->leditexpr->setText(str);
+    if (!str.endsWith('.')) {
+        str.append(".");
+        ui->leditexpr->setText(str);
+    }
 }
 
 void CalWidget::on_btnadd_clicked()
 {
-    mark = '+';
-    QString tmp = " + ";
-    str.append(tmp);
+    str.append(" + ");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btnsub_clicked()
 {
-    mark = '-';
-    QString tmp = " - ";
-    str.append(tmp);
+    str.append(" - ");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btnmulti_clicked()
 {
-    mark = '*';
-    QString tmp = " * ";
-    str.append(tmp);
+    str.append(" * ");
     ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btndiv_clicked()
 {
-    mark = '/';
-    QString tmp = " / ";
-    str.append(tmp);
+    str.append(" / ");
     ui->leditexpr->setText(str);
 }
 
-void CalWidget::on_btnback_clicked()
+void CalWidget::on_btnOpenParen_clicked()
 {
-    if (!str.isEmpty()) {
-        str.chop(1);
+    str.append("(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
+}
+
+void CalWidget::on_btnCloseParen_clicked()
+{
+    if (openParensCount > 0) {
+        str.append(")");
+        openParensCount--;
         ui->leditexpr->setText(str);
     }
+}
+
+void CalWidget::on_btnExponent_clicked()
+{
+    str.append("^(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
+}
+
+void CalWidget::on_btnLog_clicked()
+{
+    str.append("log(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
+}
+
+void CalWidget::on_btnSin_clicked()
+{
+    str.append("sin(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
+}
+
+void CalWidget::on_btnCos_clicked()
+{
+    str.append("cos(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
+}
+
+void CalWidget::on_btnTan_clicked()
+{
+    str.append("tan(");
+    openParensCount++;
+    ui->leditexpr->setText(str);
 }
 
 void CalWidget::on_btnclear_clicked()
@@ -137,36 +163,26 @@ void CalWidget::on_btnclear_clicked()
     ui->leditresult->clear();
 }
 
+void CalWidget::on_btnback_clicked()
+{
+    if (!str.isEmpty()) {
+        if (str.endsWith(" ")) {
+            str.chop(3); // Remove the last operator and spaces
+        } else {
+            str.chop(1); // Remove the last digit or parenthesis
+        }
+        ui->leditexpr->setText(str);
+    }
+}
+
 void CalWidget::on_btnequal_clicked()
 {
-    ui->leditresult->clear();
-    QStringList Str_List = str.split(" ", Qt::SkipEmptyParts);  // 确保使用Qt::SkipEmptyParts去除多余的空白
-    if (Str_List.size() == 3) {
-        double num1 = Str_List[0].toDouble();  // 将左操作数字符串转化为数值
-        double num2 = Str_List[2].toDouble();  // 将右操作数字符串转化为数值
-        QString operatorStr = Str_List[1].trimmed();  // 获取并清理操作符字符串
 
-        // 根据操作符执行相应的运算
-        if (operatorStr == "+") {
-            result = num1 + num2;
-        } else if (operatorStr == "-") {
-            result = num1 - num2;
-        } else if (operatorStr == "*") {
-            result = num1 * num2;
-        } else if (operatorStr == "/") {
-            if (num2 != 0) {
-                result = num1 / num2;
-            } else {
-                ui->leditresult->setText("除数不能为0!");
-                return;
-            }
-        } else {
-            ui->leditresult->setText("未知的操作符!");
-            return;
-        }
-        ui->leditresult->setText(QString::number(result));
-    } else {
-        ui->leditresult->setText("表达式错误!");
-    }
-    str.clear(); // 完成一次运算，清空表达式字符串
+    ui->leditresult->setText(evaluateExpression(str));
+    str.clear();
+}
+
+QString CalWidget::evaluateExpression(const QString &expr)
+{
+    return "Result";
 }
