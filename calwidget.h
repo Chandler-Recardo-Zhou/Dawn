@@ -32,9 +32,6 @@ private slots:
     void on_btnsub_clicked();
     void on_btnmulti_clicked();
     void on_btndiv_clicked();
-    void on_btnclear_clicked();
-    void on_btnback_clicked();
-    void on_btnequal_clicked();
     void on_btnOpenParen_clicked();
     void on_btnCloseParen_clicked();
     void on_btnExponent_clicked();
@@ -42,13 +39,18 @@ private slots:
     void on_btnSin_clicked();
     void on_btnCos_clicked();
     void on_btnTan_clicked();
+    void on_btnclear_clicked();
+    void on_btnback_clicked();
+    void on_btnequal_clicked();
 
 private:
     Ui::CalWidget *ui;
     QString str;
     int openParensCount;
-
+    void appendNumber(const QString &num);
+    void appendOperator(const QString &op);
+    void updateExpression();
     QString evaluateExpression(const QString &expr);
 };
 
-#endif
+#endif // CALWIDGET_H
