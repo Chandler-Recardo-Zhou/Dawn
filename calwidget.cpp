@@ -7,7 +7,7 @@
 CalWidget::CalWidget(QWidget *parent) : QWidget(parent), ui(new Ui::CalWidget)
 {
     ui->setupUi(this);
-    openParensCount = 0; // Initialize parenthesis counter
+    openParensCount = 0; 
 }
 
 CalWidget::~CalWidget()
@@ -57,10 +57,13 @@ void CalWidget::on_btnExponent_clicked()
 
 void CalWidget::on_btnLog_clicked()
 {
-    str.append("log(");
+    str.append("log(");  // 用户点击 log 后自动添加底数的左括号
     openParensCount++;
     updateExpression();
+    // 用户需要手动完成底数的输入和添加右括号
+    // 用户继续手动输入真数的左括号，真数，和真数的右括号
 }
+
 
 void CalWidget::on_btnSin_clicked()
 {
@@ -120,34 +123,40 @@ QString CalWidget::evaluateExpression(const QString &expr)
 {
     QJSEngine engine;
 
-    // Setup engine to recognize Math functions
+   
     engine.globalObject().setProperty("sin", engine.evaluate("(x) => Math.sin(x)"));
     engine.globalObject().setProperty("cos", engine.evaluate("(x) => Math.cos(x)"));
     engine.globalObject().setProperty("tan", engine.evaluate("(x) => Math.tan(x)"));
-    engine.globalObject().setProperty("log", engine.evaluate("(x) => Math.log(x)"));  // Natural logarithm
+    engine.globalObject().setProperty("log", engine.evaluate("(base, antilog) => Math.log(antilog) / Math.log(base)"));
     engine.globalObject().setProperty("pow", engine.evaluate("(x, y) => Math.pow(x, y)"));
 
-    // Prepare the expression to use proper JavaScript syntax for Math.pow
     QString jsExpr = expr;
-    QRegularExpression expRegEx("\\b(\\d+|\\))\\s*\\^\\s*\\((\\d+)\\)"); // Updated regex to match numbers and properly closed parenthesis
-    QRegularExpressionMatch match;
-    int pos = 0;
-    while ((match = expRegEx.match(jsExpr, pos)).hasMatch()) {
+
+    // 处理对数表达式
+    QRegularExpression logRegEx("\\blog\\(([^)]+)\\)\\(([^)]+)\\)");
+    jsExpr.replace(logRegEx, "log(\\1, \\2)");
+
+    // 处理指数表达式
+    QRegularExpression expRegEx("\\b(\\d+|\\))\\s*\\^\\s*\\((\\d+)\\)");
+    QRegularExpressionMatchIterator it = expRegEx.globalMatch(jsExpr);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
         QString base = match.captured(1);
         QString exponent = match.captured(2);
         QString replacement = QString("Math.pow(%1, %2)").arg(base, exponent);
         jsExpr.replace(match.capturedStart(0), match.capturedLength(0), replacement);
-        pos += replacement.length(); // Update position to continue searching
     }
 
-    // Evaluate the JavaScript expression
+
+    qDebug() << "Final JavaScript expression: " << jsExpr;
+
+
     QJSValue result = engine.evaluate(jsExpr);
     if (result.isError()) {
         return "Error: " + result.toString();
     }
     return result.toString();
 }
-
 
 
 
