@@ -123,7 +123,7 @@ QString CalWidget::evaluateExpression(const QString &expr)
 {
     QJSEngine engine;
 
-   
+    // 识别数学函数
     engine.globalObject().setProperty("sin", engine.evaluate("(x) => Math.sin(x)"));
     engine.globalObject().setProperty("cos", engine.evaluate("(x) => Math.cos(x)"));
     engine.globalObject().setProperty("tan", engine.evaluate("(x) => Math.tan(x)"));
@@ -147,9 +147,7 @@ QString CalWidget::evaluateExpression(const QString &expr)
         jsExpr.replace(match.capturedStart(0), match.capturedLength(0), replacement);
     }
 
-
     qDebug() << "Final JavaScript expression: " << jsExpr;
-
 
     QJSValue result = engine.evaluate(jsExpr);
     if (result.isError()) {

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
         }
     }
     CalWidget w;
-    w.setWindowTitle("计算器");
+    w.setWindowTitle("Ultra Calculator");
     w.show();
     return a.exec();
 }
